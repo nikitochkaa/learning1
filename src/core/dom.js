@@ -99,7 +99,7 @@ class Dom {
     const element = this.$el
     if (element.textContent.length !== 0) {
       const range = document.createRange();
-      range.selectNodeContents(this.$el);
+      range.selectNodeContents(element);
       range.collapse(false);
       const selection = window.getSelection();
       selection.removeAllRanges();
