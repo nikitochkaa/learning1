@@ -78,6 +78,7 @@ export class Table extends ExcelComponent {
             .map(id => this.$root.find(`[data-id="${id}"]`))
         this.selection.selectGroup($cells)
       } else {
+        this.$emit('formula:input', this.selection.current.data.value)
         this.selectCell($target)
       }
     }
@@ -98,6 +99,7 @@ export class Table extends ExcelComponent {
     if (keys.includes(key) && !event.shiftKey) {
       event.preventDefault()
       const id = this.selection.current.id(true)
+      this.$emit('formula:input', $(event.target).data.value)
       const $next = this.$root.find(nextSelector(key, id))
       this.selectCell($next)
     }
@@ -111,7 +113,6 @@ export class Table extends ExcelComponent {
   }
 
   onInput(event) {
-    // this.$emit('table:input', $(event.target))
     const text = $(event.target).text()
     this.selection.current.attr('data-value', text)
     this.updateTextInStore(text)
