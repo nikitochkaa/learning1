@@ -1,6 +1,6 @@
 import {ExcelComponent} from '@core/ExcelComponent';
 import {$} from '@core/dom';
-import {changeTitle} from '@/redux/actions';
+import {changeTitle, revertLastAction} from '@/redux/actions';
 import {defaultTitle} from '@/constants';
 import {debounce} from '@core/utils';
 import {ActiveRoute} from '@core/routes/ActiveRoute';
@@ -11,7 +11,7 @@ export class Header extends ExcelComponent {
   constructor($root, options) {
     super($root, {
       name: 'Header',
-      listeners: ['input', 'click'],
+      listeners: ['input', 'click', 'keydown'],
       ...options
     });
   }
@@ -63,5 +63,11 @@ export class Header extends ExcelComponent {
   onInput(event) {
     const $target = $(event.target)
     this.$dispatch(changeTitle($target.text()))
+  }
+
+  onKeydown(event) {
+    if (event.key === 'z' && event.ctrlKey) {
+      this.$dispatch(revertLastAction())
+    }
   }
 }

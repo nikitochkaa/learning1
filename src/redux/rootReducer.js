@@ -4,25 +4,41 @@ import {
   TABLE_RESIZE,
   APPLY_STYLE,
   CHANGE_TITLE,
-  UPDATE_DATE
+  UPDATE_DATE, REVERT_LAST_ACTION
 } from './types';
 
 export function rootReducer(state, action) {
   let field
   let val
+  let lastAction
+  let save
   switch (action.type) {
     case TABLE_RESIZE:
       field = action.data.type === 'col' ? 'colState' : 'rowState'
-      return {...state, [field]: value(state, field, action)}
+      lastAction = {...state[field]}
+      val = {...state,
+        [field]: value(state, field, action),
+        actionsHistory: [...state.actionsHistory, action]
+      }
+      action.saveBackup({
+        field: field,
+        last: lastAction,
+        value: val[field]
+      })
+      return val
     case CHANGE_TEXT:
       field = 'dataState'
       return {
         ...state,
         currentText: action.data.value,
-        [field]: value(state, field, action)
+        [field]: value(state, field, action),
+        // actionsHistory: [...state.actionsHistory, action]
       }
     case CHANGE_STYLES:
-      return {...state, currentStyles: action.data}
+      return {...state,
+        currentStyles: action.data,
+        // actionsHistory: [...state.actionsHistory, action]
+      }
     case APPLY_STYLE:
       field = 'stylesState'
       val = state[field] || {}
@@ -32,12 +48,42 @@ export function rootReducer(state, action) {
       return {
         ...state,
         [field]: val,
-        currentStyles: {...state.currentStyles, ...action.data.value}
+        currentStyles: {...state.currentStyles, ...action.data.value},
+        // actionsHistory: [...state.actionsHistory, action]
       }
     case CHANGE_TITLE:
-      return {...state, title: action.data}
+      return {
+        ...state,
+        title: action.data,
+        // actionsHistory: [...state.actionsHistory, action]
+      }
     case UPDATE_DATE:
       return {...state, openedDate: new Date().toJSON()}
+    case REVERT_LAST_ACTION:
+      if (state.actionsHistory[0]) {
+        lastAction = state.actionsHistory.pop()
+        switch (lastAction.type) {
+          case TABLE_RESIZE:
+            if (lastAction.data.type === 'row') {
+              val = lastAction.undo()
+              field = val.field
+              save = {
+                ...state,
+                [field]: val.value
+              }
+              lastAction.pop()
+              return save
+            } else {
+              val = lastAction.undo()
+              console.log(val)
+              field = val.field
+              return state
+            }
+          default: return state
+        }
+      } else {
+        return state
+      }
     default: return state
   }
 }

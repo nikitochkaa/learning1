@@ -7,6 +7,7 @@ import {TableSelection} from '@/components/table/TableSelection';
 import * as actions from '@/redux/actions'
 import {defaultStyles} from '@/constants';
 import {parse} from '@core/parse';
+import {revertLastAction} from '@/redux/actions';
 
 export class Table extends ExcelComponent {
   static className = 'excel__table'
@@ -15,12 +16,34 @@ export class Table extends ExcelComponent {
     super($root, {
       name: 'Table',
       listeners: ['mousedown', 'keydown', 'input'],
+      subscribe: ['colState', 'rowState'],
       ...options
     })
   }
 
   toHTML() {
     return createTable(20, this.store.getState())
+  }
+
+  storeChanged(changes) {
+    if (Object.keys(changes)[0] === 'colState') {
+      console.log(changes)
+    } else {
+      Object.keys(changes.rowState).forEach(key => {
+        this.$root
+            .find(`[data-row="${key}"]`)
+            .css({height: changes.rowState[key] + 'px'})
+      })
+    }
+    // const $parent = $resizer.closest('[data-type="resizable"]')
+    // const coords = $parent.getCoords()
+    // const type = $resizer.data.resize
+    // const sideProp = type === 'col' ? 'bottom' : 'right'
+    // let value
+    // if (type === 'col') {
+    //   $parent.css({width: value + 'px'})
+    //   $root.findAll(`[data-col="${$parent.data.col}"]`)
+    //       .forEach(el => el.style.width = value + 'px')
   }
 
   prepare() {
@@ -102,6 +125,9 @@ export class Table extends ExcelComponent {
       this.$emit('formula:input', $(event.target).data.value)
       const $next = this.$root.find(nextSelector(key, id))
       this.selectCell($next)
+    }
+    if (event.code === 'KeyZ' && event.ctrlKey) {
+      this.$dispatch(revertLastAction())
     }
   }
 
