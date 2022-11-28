@@ -6,12 +6,15 @@ import {
   CHANGE_TITLE,
   UPDATE_DATE, REVERT_LAST_ACTION
 } from './types';
+import {TableResizeCommand} from '@core/Commands/TableResizeCommand';
 
 export function rootReducer(state, action) {
   let field
   let val
   let lastAction
   let save
+  let type
+  let backup
   switch (action.type) {
     case TABLE_RESIZE:
       field = action.data.type === 'col' ? 'colState' : 'rowState'
@@ -64,21 +67,18 @@ export function rootReducer(state, action) {
         lastAction = state.actionsHistory.pop()
         switch (lastAction.type) {
           case TABLE_RESIZE:
-            if (lastAction.data.type === 'row') {
-              val = lastAction.undo()
-              field = val.field
-              save = {
-                ...state,
-                [field]: val.value
-              }
-              lastAction.pop()
-              return save
-            } else {
-              val = lastAction.undo()
-              console.log(val)
-              field = val.field
-              return state
+            type = lastAction.data.type
+            backup = type === 'row'?
+                TableResizeCommand.backupRow :
+                TableResizeCommand.backupCol
+            val = lastAction.undo(type)
+            field = val.field
+            save = {
+              ...state,
+              [field]: val.value
             }
+            lastAction.backupPop(backup)
+            return save
           default: return state
         }
       } else {
