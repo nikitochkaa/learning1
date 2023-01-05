@@ -27,7 +27,14 @@ export class Table extends ExcelComponent {
 
   storeChanged(changes) {
     if (Object.keys(changes)[0] === 'colState') {
-      console.log(changes)
+      Object.keys(changes.colState).forEach(key => {
+        this.$root
+            .find(`[data-col="${key}"]`)
+            .css({width: changes.colState[key] + 'px'})
+        this.$root
+            .findAll(`[data-col="${key}"]`)
+            .forEach(el => el.style.width = changes.colState[key] + 'px')
+      })
     } else {
       Object.keys(changes.rowState).forEach(key => {
         this.$root
@@ -35,15 +42,6 @@ export class Table extends ExcelComponent {
             .css({height: changes.rowState[key] + 'px'})
       })
     }
-    // const $parent = $resizer.closest('[data-type="resizable"]')
-    // const coords = $parent.getCoords()
-    // const type = $resizer.data.resize
-    // const sideProp = type === 'col' ? 'bottom' : 'right'
-    // let value
-    // if (type === 'col') {
-    //   $parent.css({width: value + 'px'})
-    //   $root.findAll(`[data-col="${$parent.data.col}"]`)
-    //       .forEach(el => el.style.width = value + 'px')
   }
 
   prepare() {
@@ -127,6 +125,7 @@ export class Table extends ExcelComponent {
       this.selectCell($next)
     }
     if (event.code === 'KeyZ' && event.ctrlKey) {
+      event.preventDefault()
       this.$dispatch(revertLastAction())
     }
   }
@@ -144,5 +143,3 @@ export class Table extends ExcelComponent {
     this.updateTextInStore(text)
   }
 }
-
-
