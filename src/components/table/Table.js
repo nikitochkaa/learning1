@@ -42,15 +42,6 @@ export class Table extends ExcelComponent {
             .css({height: changes.rowState[key] + 'px'})
       })
     }
-    // const $parent = $resizer.closest('[data-type="resizable"]')
-    // let value
-    // if (type === 'col') {
-    //         $parent.css({width: value + 'px'})
-    //         $root.findAll(`[data-col="${$parent.data.col}"]`)
-    //             .forEach(el => el.style.width = value + 'px')
-    //       } else {
-    //         $parent.css({height: value + 'px'})
-    //       }
   }
 
   prepare() {
@@ -134,6 +125,7 @@ export class Table extends ExcelComponent {
       this.selectCell($next)
     }
     if (event.code === 'KeyZ' && event.ctrlKey) {
+      event.preventDefault()
       this.$dispatch(revertLastAction())
     }
   }
@@ -151,5 +143,3 @@ export class Table extends ExcelComponent {
     this.updateTextInStore(text)
   }
 }
-
-
