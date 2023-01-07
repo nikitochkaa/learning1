@@ -17,6 +17,24 @@
     z-index: 1000;
   }
 
+  &__signIn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    height: 24px;
+    width: 60px;
+    font-size: 16px;
+    background: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    &:hover {
+
+      cursor: pointer;
+      color: green;
+      border-color: green;
+    }
+  }
+
   &__new {
     margin-top: $db-header-height;
     padding: 1.5rem;
